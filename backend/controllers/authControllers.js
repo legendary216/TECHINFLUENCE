@@ -1,0 +1,80 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
+
+// exports.register = async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+
+
+//     let user = await User.findOne({ email });
+//     if (user) return res.status(400).json({ msg: 'User already exists' });
+    
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     user = new User({ name, email, password: hashedPassword });
+//     await user.save();
+
+//     res.status(201).json({ msg: 'User registered successfully' });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message || 'Server error' });
+//   }
+// };
+
+exports.register = async (req, res) => {
+    try {
+      const { name, email, password, role, phoneNumber, address, profilePicture } = req.body;
+  
+      // Validate required fields
+      if (!name || !email || !password || !role) {
+        return res.status(400).json({ msg: 'Please provide all required fields' });
+      }
+  
+      let user = await User.findOne({ email });
+      if (user) return res.status(400).json({ msg: 'User already exists' });
+  
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+  
+      user = new User({
+        name,
+        email,
+        password: hashedPassword,
+        role, // Ensure role is either 'candidate' or 'employer'
+        phoneNumber,
+        address,
+        profilePicture
+      });
+  
+      await user.save();
+  
+      res.status(201).json({ msg: 'User registered successfully', user: { id: user._id, name, email, role } });
+    } catch (error) {
+      console.error("Register Error:", error);
+      res.status(500).json({ error: error.message || 'Server error' });
+    }
+  };
+  
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    let user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: 'Invalid credentials' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.logout = (req, res) => {
+  res.json({ msg: 'Logged out successfully' });
+};
