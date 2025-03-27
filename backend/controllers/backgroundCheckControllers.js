@@ -1,27 +1,54 @@
+const backgroundCheck = require('../models/backgroundCheck');
 const BackgroundCheck = require('../models/backgroundCheck');
 const Document = require('../models/documents');
+const analyzeDocumentsWithGemini = require("../services/geminiservice");
 
-// Controller to submit a background check
-exports.submitBackgroundCheck = async (req, res) => {
+exports.deleteAllBackgroundChecks = async (req, res) => {
   try {
-    const { candidateId, employerId, submittedDocuments } = req.body;
-
-    // Create a new background check record
-    const newBackgroundCheck = new BackgroundCheck({
-      candidateId,
-      employerId,
-      status: 'pending',
-      submittedDocuments, // Array of Document IDs
-    });
-
-    await newBackgroundCheck.save();
-
-    res.status(201).json({ message: 'Background check submitted successfully', newBackgroundCheck });
+    await BackgroundCheck.deleteMany({}); // Deletes all background check documents
+    res.status(200).json({ message: 'All background checks deleted successfully' });
   } catch (error) {
-    console.error('Error submitting background check:', error);
-    res.status(500).json({ error: 'Failed to submit background check' });
+    console.error('Error deleting background checks:', error);
+    res.status(500).json({ error: 'Failed to delete background checks' });
   }
 };
+
+
+  // Controller to submit a background check
+  exports.submitBackgroundCheck = async (req, res) => {
+    try {
+      const { candidateId, employerId, submittedDocuments } = req.body;
+
+      // Create a new background check record
+      const newBackgroundCheck = new BackgroundCheck({
+        candidateId,
+        employerId,
+        status: 'pending',
+        submittedDocuments, // Array of Document IDs
+      });
+
+      
+      
+      await newBackgroundCheck.save();  
+      
+      console.log("submited Documents : ",submittedDocuments);
+
+       const documentIds = Array.isArray(submittedDocuments) ? submittedDocuments : [submittedDocuments];
+      
+      const { score, details } = await analyzeDocumentsWithGemini(documentIds);
+      console.log("score ",score);
+
+      newBackgroundCheck.riskAssessmentScore = score;
+      newBackgroundCheck.resultDetails = details;
+      newBackgroundCheck.status = "completed";
+      newBackgroundCheck.completionDate = new Date();
+
+      res.status(201).json({ message: 'Background check submitted successfully', newBackgroundCheck });
+    } catch (error) {
+      console.error('Error submitting background check:', error);
+      res.status(500).json({ error: 'Failed to submit background check' });
+    }
+  };
 
 // Controller to get background check status
 exports.getBackgroundCheckStatus = async (req, res) => {

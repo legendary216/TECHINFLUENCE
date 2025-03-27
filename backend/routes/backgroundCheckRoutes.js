@@ -12,4 +12,6 @@ router.get('/:id/status', backgroundCheckController.getBackgroundCheckStatus);
 // Route to update the background check status 
 router.put('/:id/update-status', backgroundCheckController.updateBackgroundCheckStatus);
 
+router.delete('/delete-background-checks', backgroundCheckController.deleteAllBackgroundChecks);
+
 module.exports = router;
