@@ -1,12 +1,13 @@
 
 const express = require('express');
-const { register, login, logout } = require('../controllers/authControllers');
+const { register, login, logout,getuser } = require('../controllers/authControllers');
 const router = express.Router();
 const {uploadPNG} = require('../middleware/multerMiddleware')
 
 router.post("/register", uploadPNG, register);
 router.post('/login', login);
 router.post('/logout', logout);
+router.get('/candidates/:id',getuser)
 
 module.exports = router; 
 

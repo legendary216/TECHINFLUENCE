@@ -20,7 +20,7 @@ exports.getDocuments = async( req, res ) => {
 // Controller to submit a document
 exports.submitDocument = async (req, res) => {
   try {
-    const { candidateId, type } = req.body;
+    const { candidateId } = req.body;
     
     const filePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
     
@@ -31,7 +31,6 @@ exports.submitDocument = async (req, res) => {
     
     const newDocument = new Document({
       candidateId,
-      type,
       filePath,
       status: 'pending',
     });
