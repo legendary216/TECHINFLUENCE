@@ -20,8 +20,15 @@ exports.getDocuments = async( req, res ) => {
 // Controller to submit a document
 exports.submitDocument = async (req, res) => {
   try {
-    const { candidateId, type, filePath } = req.body;
-
+    const { candidateId, type } = req.body;
+    
+    const filePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
+    
+    if (!filePath) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    console.log(filePath);
+    
     const newDocument = new Document({
       candidateId,
       type,
@@ -190,3 +197,4 @@ exports.validateDocument = async (req, res) => {
   }
 };
 
+ 
