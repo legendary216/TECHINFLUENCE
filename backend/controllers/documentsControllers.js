@@ -156,8 +156,9 @@ const extractTextFromPDF = async (filePath) => {
       return pdfData.text;
       
     } else {
-      console.log('PDF seems to be image-based, using OCR...');
-      return await extractTextUsingOCR(filePath);
+      // console.log('PDF seems to be image-based, using OCR...');
+      // return await extractTextUsingOCR(filePath);
+      return "not valid"
     }
   }
 catch (error) {

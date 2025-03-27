@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { FiRefreshCw, FiCheckCircle, FiXCircle, FiClock, FiInfo } from 'react-icons/fi';
 
 const DocumentStatusChecker = ({ documentIds }) => {
-  const [documentData, setDocumentData] = useState([]); // Store an array of document statuses
+  const [documentData, setDocumentData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -13,93 +14,152 @@ const DocumentStatusChecker = ({ documentIds }) => {
 
     setLoading(true);
     setError(null);
-    setDocumentData([]); // Reset previous results
+    setDocumentData([]);
 
     try {
-      // Iterate over each documentId and fetch its status
       const results = await Promise.all(
         documentIds.map(async (docId) => {
           const response = await fetch(`http://localhost:5000/api/documents/${docId}/status`);
-
           if (!response.ok) {
             return { id: docId, error: 'Failed to fetch document status' };
           }
-
           const data = await response.json();
           return { id: docId, status: data.status };
         })
       );
 
-      // Update state with fetched document statuses
       setDocumentData(results);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
+
     } catch (err) {
-      setError('Failed to check document statuses');
+      setError('Failed to check document statuses. Please try again.');
       setDocumentData([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'validated':
+        return <FiCheckCircle className="text-green-400 mr-1.5" />;
+      case 'failed':
+        return <FiXCircle className="text-red-400 mr-1.5" />;
+      default:
+        return <FiClock className="text-yellow-400 mr-1.5" />;
+    }
+  };
+
   return (
-    <div className="document-status-checker p-4 border rounded-lg bg-white shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-medium">Document Status</h2>
+    <div className="document-status-checker p-6 border border-gray-700 rounded-xl bg-gray-800 shadow-sm max-w-2xl mx-auto">
+      <div className="flex items-center justify-between mb-4">
+        <div className='p-[12px]'>
+          <h2 className="text-xl font-semibold text-gray-100">Document Status Tracker</h2>
+          <p className="text-sm text-gray-400">Check the validation status</p>
+        </div>
         <button
           onClick={checkDocumentStatuses}
           disabled={loading || !documentIds || documentIds.length === 0}
-          className={`px-3 py-1 text-sm rounded ${loading || !documentIds || documentIds.length === 0
-            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-            : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+          className={`px-4 py-2 rounded-md flex items-center transition-all ${
+            loading || !documentIds || documentIds.length === 0
+              ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-500 shadow-sm'
+          }`}
         >
-          {loading ? 'Checking...' : 'Check Status'}
+          {loading ? (
+            <>
+              <FiRefreshCw className="animate-spin mr-2" />
+              Checking...
+            </>
+          ) : (
+            <>
+              <FiRefreshCw className="mr-2" />
+              Check Status
+            </>
+          )}
         </button>
       </div>
 
       {documentIds && documentIds.length > 0 && (
-        <p className="text-sm text-gray-600 mb-3">
-          Document IDs: <code className="bg-gray-100 px-1.5 py-0.5 rounded">{documentIds.join(', ')}</code>
-        </p>
+        <div className="mb-4 p-3 bg-gray-700 rounded-lg">
+          <div className="flex items-center text-sm text-gray-300">
+            <FiInfo className="mr-2 text-blue-400" />
+            <span>Tracking {documentIds.length} document{documentIds.length > 1 ? 's' : ''}</span>
+          </div>
+        </div>
       )}
 
       {error && (
-        <div className="p-2 mb-3 text-sm text-red-600 bg-red-50 rounded">
-          Error: {error}
+        <div className="mb-4 p-3 text-sm text-red-400 bg-red-900/30 rounded-lg border border-red-800 flex items-start">
+          <FiXCircle className="mr-2 mt-0.5 flex-shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
-      {documentData.length > 0 && (
-        <div className="mt-3 p-3 border-t">
+      {documentData.length > 0 ? (
+        <div className="space-y-3">
           {documentData.map((doc) => (
-            <div key={doc.id} className="grid grid-cols-2 gap-2 text-sm mb-4">
-              <div className="text-gray-500">Document ID:</div>
-              <div>{doc.id}</div>
-
-              {doc.error ? (
-                <>
-                  <div className="text-gray-500">Status:</div>
-                  <div className="text-red-500">{doc.error}</div>
-                </>
-              ) : (
-                <>
-                  <div className="text-gray-500">Status:</div>
-                  <div className={`font-medium inline-flex items-center px-2 py-0.5 rounded text-xs ${
-                    doc.status === 'validated' ? 'bg-green-100 text-green-800' :
-                    doc.status === 'failed' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {doc.status || 'pending'}
+            <div 
+              key={doc.id} 
+              className="p-4 border border-gray-700 rounded-lg hover:bg-gray-700/50 transition-colors"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-gray-100">Document ID: {doc.id}</h3>
+                  <div className="mt-2 flex items-center">
+                    {doc.error ? (
+                      <span className="text-red-400 flex items-center">
+                        <FiXCircle className="mr-1.5" />
+                        {doc.error}
+                      </span>
+                    ) : (
+                      <>
+                        {getStatusIcon(doc.status)}
+                        <span className={`font-medium ${
+                          doc.status === 'validated' ? 'text-green-400' :
+                          doc.status === 'failed' ? 'text-red-400' :
+                          'text-yellow-400'
+                        }`}>
+                          {doc.status || 'pending'}
+                        </span>
+                      </>
+                    )}
                   </div>
-                </>
-              )}
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  doc.error ? 'bg-red-900/50 text-red-300' :
+                  doc.status === 'validated' ? 'bg-green-900/50 text-green-300' :
+                  doc.status === 'failed' ? 'bg-red-900/50 text-red-300' :
+                  'bg-yellow-900/50 text-yellow-300'
+                }`}>
+                  {doc.error ? 'Error' : doc.status || 'Pending'}
+                </div>
+              </div>
             </div>
           ))}
+          <div className="mt-4 text-xs text-gray-400 italic">
+            Page will automatically refresh in 5 seconds to update statuses...
+          </div>
         </div>
-      )}
-
-      {documentIds && documentIds.length === 0 && (
-        <p className="text-sm text-gray-500 italic">
-          No document IDs provided - please pass document IDs to check their status.
-        </p>
+      ) : (
+        <div className="p-6 text-center border-2 border-dashed border-gray-700 rounded-lg">
+          {documentIds && documentIds.length === 0 ? (
+            <div className="text-gray-400">
+              <FiInfo className="mx-auto text-2xl mb-2" />
+              <p>No document IDs provided</p>
+              <p className="text-sm">Please pass document IDs to check their status</p>
+            </div>
+          ) : (
+            <div className="text-gray-400">
+              <FiRefreshCw className="mx-auto text-2xl mb-2" />
+              <p>Ready to check document statuses</p>
+              <p className="text-sm">Click the "Check Status" button to begin</p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
