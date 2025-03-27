@@ -7,7 +7,7 @@ const documentController = require('../controllers/documentsControllers.js');
 const {upload} = require('../middleware/multerMiddleware');
 
 // Route to submit a document for verification
-router.post('/submit',  upload.single('pdfFile'),documentController.submitDocument);
+router.post('/submit',  upload.array('documents'),documentController.submitDocument);
 
 // Route to get a document's validation status
 router.get('/:id/status', documentController.getDocumentStatus);

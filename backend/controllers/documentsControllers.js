@@ -17,30 +17,58 @@ exports.getDocuments = async( req, res ) => {
   }
 }
 
-// Controller to submit a document
+// Controller to submit a document SIngle pdf
+// exports.submitDocument = async (req, res) => {
+//   try {
+//     const { candidateId } = req.body;
+    
+//     const filePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
+    
+//     if (!filePath) {
+//       return res.status(400).json({ error: 'No file uploaded' });
+//     }
+//     console.log(filePath);
+    
+//     const newDocument = new Document({
+//       candidateId,
+//       filePath,
+//       status: 'pending',
+//     });
+
+//     await newDocument.save();
+
+//     res.status(201).json({ message: 'Document submitted successfully', newDocument });
+//   } catch (error) {
+//     console.error('Error submitting document:', error);
+//     res.status(500).json({ error: 'Failed to submit document' });
+//   }
+// };
+
 exports.submitDocument = async (req, res) => {
   try {
     const { candidateId } = req.body;
-    
-    const filePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
-    
-    if (!filePath) {
-      return res.status(400).json({ error: 'No file uploaded' });
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
     }
-    console.log(filePath);
-    
-    const newDocument = new Document({
+
+    // Convert file paths into a list
+    const uploadedDocuments = req.files.map((file) => ({
       candidateId,
-      filePath,
-      status: 'pending',
+      filePath: file.path.replace(/\\/g, "/"),
+      status: "pending",
+    }));
+
+    // Save documents to the database
+    const newDocuments = await Document.insertMany(uploadedDocuments);
+
+    res.status(201).json({
+      message: "Documents submitted successfully",
+      documents: newDocuments,
     });
-
-    await newDocument.save();
-
-    res.status(201).json({ message: 'Document submitted successfully', newDocument });
   } catch (error) {
-    console.error('Error submitting document:', error);
-    res.status(500).json({ error: 'Failed to submit document' });
+    console.error("Error submitting documents:", error);
+    res.status(500).json({ error: "Failed to submit documents" });
   }
 };
 

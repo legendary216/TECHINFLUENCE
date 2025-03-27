@@ -9,7 +9,7 @@ const backgroundCheckRoutes = require('./routes/backgroundCheckRoutes')
 const VerificationStatusRoutes = require('./routes/verificationStatusRoutes')
 const riskAssessmentRoutes = require('./routes/riskAssessmentRoutes')
 const path = require('path');  
-
+ 
 
 dotenv.config(); 
 const app = express();
@@ -22,7 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', docuementRoutes);
 app.use('/api/backgroundCheck',backgroundCheckRoutes)
 app.use('/api/verificationStatus',VerificationStatusRoutes)
-app.use('/api/RiskAssessment',riskAssessmentRoutes)
+app.use('/api/RiskAssessment',riskAssessmentRoutes) 
 
 
    
