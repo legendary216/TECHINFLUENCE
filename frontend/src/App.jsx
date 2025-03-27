@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./components/Register.jsx";
 import Login from "./components/Login.jsx";
+import CandidateDashboard from "./components/CandidateDashboard.jsx"
+import EmployerDashboard from "./components/EmployerDashboard.jsx"
 
 function App() {
   return (
@@ -11,6 +13,8 @@ function App() {
         <Route path="/employee_Login" element={<Login />} />
         <Route path="/employer_Login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/candidate_dashboard/:id" element={<CandidateDashboard />} /> 
+        <Route path="/employer_dashboard/:id" element={<EmployerDashboard />} /> 
       </Routes>
     </Router>
   );

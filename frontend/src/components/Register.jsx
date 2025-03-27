@@ -67,9 +67,13 @@ const Register = () => {
             const result = await response.json();
             console.log(result);
 
-            if (response.ok) {
-                alert("Registration successful!");
-            } else {
+            // if (response.ok) {
+            //     alert("Registration successful!");
+            // } else {
+            //     setError(result.msg || "Registration failed");
+            // }
+            if(!response.ok)
+            {
                 setError(result.msg || "Registration failed");
             }
         } catch (error) {

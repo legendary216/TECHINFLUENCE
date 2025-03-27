@@ -16,9 +16,7 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -27,10 +25,14 @@ const Login = () => {
         throw new Error(result.msg || "Login failed");
       }
 
-      // Save JWT token
+      // Save JWT token and user data
       localStorage.setItem("token", result.token);
-      alert("Login successful!");
-      navigate("/dashboard"); // Redirect to dashboard
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      // Navigate to user's specific dashboard
+      const { id, role } = result.user; // Get user ID and role
+      navigate(`/${role}_dashboard/${id}`); // e.g., /candidate_dashboard/12345
+      
     } catch (error) {
       setError(error.message);
     }
@@ -51,7 +53,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter email"
-              className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-700 text-white focus:ring-2 focus:ring-gray-500"
+              className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-700 text-white"
               required
             />
             <input
@@ -59,7 +61,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
-              className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-700 text-white focus:ring-2 focus:ring-gray-500"
+              className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-700 text-white"
               required
             />
             <button
