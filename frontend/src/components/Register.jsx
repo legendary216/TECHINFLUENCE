@@ -98,10 +98,10 @@ const Register = () => {
                     <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full p-3 border border-gray-700 rounded bg-gray-700 text-white" />
                     <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="Phone Number" className="w-full p-3 border border-gray-700 rounded bg-gray-700 text-white" />
                     <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" className="w-full p-3 border border-gray-700 rounded bg-gray-700 text-white" />
-                    {/* <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full p-3 border border-gray-700 rounded bg-gray-700 text-white">
+                    <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full p-3 border border-gray-700 rounded bg-gray-700 text-white">
                         <option value="candidate">Candidate</option>
                         <option value="employer">Employer</option>
-                    </select> */}
+                    </select>
                     <input type="file" accept="image/*" onChange={handleImageChange} className="w-full p-3 border border-gray-700 rounded bg-gray-700 text-white" />
                     
                     {/* Show profile picture preview */}

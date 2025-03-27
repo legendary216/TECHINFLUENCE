@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import DocumentStatusChecker from "./DocumentStatusChecker";
-import { FiUpload, FiX, FiUser, FiFile, FiRefreshCw, FiCheckCircle } from "react-icons/fi";
+import { FiUpload, FiX, FiUser, FiFile, FiRefreshCw, FiCheckCircle, FiLogOut } from "react-icons/fi";
 
 const CandidateDashboard = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [documents, setDocuments] = useState([]);
   const [currentDocId, setCurrentDocId] = useState([]);
+  const [userData, setUserData] = useState({ name: '', profilePicture: '' });
 
-  const fetchCandidateDocuments = async () => {
+  // Fetch user data and documents
+  const fetchUserData = async () => {
     if (!id) {
-      setError("No candidate ID provided");
+      setError("No user ID provided");
       return;
     }
 
@@ -22,18 +25,28 @@ const CandidateDashboard = () => {
     setError("");
 
     try {
-      const response = await fetch(`http://localhost:5000/api/documents/candidate/${id}`);
+      // Fetch user profile data
+      const userResponse = await fetch(`http://localhost:5000/api/auth/candidates/${id}`);
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+      const userData = await userResponse.json();
+      setUserData({
+        name: userData.name,
+        profilePicture: userData.profilePicture
+      });
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error("No documents found for this candidate");
+      // Fetch documents
+      const docsResponse = await fetch(`http://localhost:5000/api/documents/candidate/${id}`);
+      if (!docsResponse.ok) {
+        if (docsResponse.status === 404) {
+          throw new Error("No documents found for this user");
         }
         throw new Error("Failed to fetch documents");
       }
-
-      const data = await response.json();
-      setCurrentDocId(data);
-      setDocuments(data);
+      const docsData = await docsResponse.json();
+      setCurrentDocId(docsData);
+      setDocuments(docsData);
     } catch (err) {
       setError(err.message);
       setDocuments([]);
@@ -42,8 +55,29 @@ const CandidateDashboard = () => {
     }
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/logout', {
+        method: 'POST',
+      
+      });
+      
+      if (response.ok) {
+        localStorage.removeItem('token');
+        sessionStorage.clear();
+        navigate('/');
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      setError('Failed to logout. Please try again.');
+    }
+  };
+
   useEffect(() => {
-    fetchCandidateDocuments();
+    fetchUserData();
   }, [id]);
 
   const handleFileChange = (e) => {
@@ -107,7 +141,7 @@ const CandidateDashboard = () => {
           method: "PUT",
         });
       }
-      fetchCandidateDocuments();
+      fetchUserData();
     } catch (error) {
       console.error("Error validating documents:", error);
     }
@@ -118,14 +152,31 @@ const CandidateDashboard = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 mb-6 shadow-lg">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-900 rounded-full text-blue-400">
-              <FiUser className="text-2xl" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {userData.profilePicture ? (
+                <img 
+                  src={userData.profilePicture} 
+                  alt="Profile" 
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <div className="p-3 bg-blue-900 rounded-full text-blue-400">
+                  <FiUser className="text-2xl" />
+                </div>
+              )}
+              <div>
+                <h1 className="text-2xl font-bold text-gray-100">{userData.name || 'User'} Dashboard</h1>
+                <p className="text-gray-400">Upload and track your verification documents</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-100">Candidate Dashboard</h1>
-              <p className="text-gray-400">Upload and track your verification documents</p>
-            </div>
+            <button
+              onClick={handleLogout}
+              className=" cursor-pointer flex items-center space-x-2 text-gray-300 hover:text-white bg-gray-700 hover:bg-red-600 px-4 py-2 rounded-md transition-colors"
+            >
+              <FiLogOut />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
 
@@ -136,7 +187,7 @@ const CandidateDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-100">Document Status</h2>
               <button
-                onClick={fetchCandidateDocuments}
+                onClick={fetchUserData}
                 className="flex items-center text-sm text-blue-400 hover:text-blue-300"
               >
                 <FiRefreshCw className="mr-1" /> Refresh
