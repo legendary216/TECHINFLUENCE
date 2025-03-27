@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
     const [name, setName] = useState("");
@@ -12,6 +13,7 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    const navigate = useNavigate(); 
     // Handle profile picture upload
     const handleImageChange = async (event) => {
         const file = event.target.files[0];
@@ -72,8 +74,10 @@ const Register = () => {
             // } else {
             //     setError(result.msg || "Registration failed");
             // }
-            if(!response.ok)
-            {
+            if (response.ok) {
+                alert("Registration successful!");
+                navigate("/"); // Navigate to Login page
+            } else {
                 setError(result.msg || "Registration failed");
             }
         } catch (error) {

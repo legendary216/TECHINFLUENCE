@@ -4,17 +4,18 @@ import Register from "./components/Register.jsx";
 import Login from "./components/Login.jsx";
 import CandidateDashboard from "./components/CandidateDashboard.jsx"
 import EmployerDashboard from "./components/EmployerDashboard.jsx"
+import DocumentStatusChecker from "./components/DocumentStatusChecker.jsx";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/employee_Login" element={<Login />} />
-        <Route path="/employer_Login" element={<Login />} />
+        <Route path="/Login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/candidate_dashboard/:id" element={<CandidateDashboard />} /> 
         <Route path="/employer_dashboard/:id" element={<EmployerDashboard />} /> 
+        <Route path="/documents/:documentId/status" element={<DocumentStatusChecker />} />
       </Routes>
     </Router>
   );

@@ -1,6 +1,30 @@
 
 const Document = require('../models/documents.js');
 
+
+exports.getcandidatedocument = async (req, res) => {
+  try {
+    // Fetch only the document IDs for the given candidateId
+    const documents = await Document.find({ candidateId: req.params.candidateId })
+      .select('_id') // Only selecting the document ID
+      .sort({ createdAt: -1 });
+
+    // Check if no documents are found
+    if (!documents.length) {
+      return res.status(404).json({ error: 'No documents found for this candidate' });
+    }
+
+    // Return only the document IDs in the response
+    const documentIds = documents.map(doc => doc._id);
+
+    // Respond with the array of document IDs
+    res.json(documentIds);
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    res.status(500).json({ error: 'Failed to fetch documents' });
+  }
+};
+
 exports.getDocuments = async( req, res ) => {
 
   try{  

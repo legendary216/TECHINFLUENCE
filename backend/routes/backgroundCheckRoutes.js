@@ -14,4 +14,6 @@ router.put('/:id/update-status', backgroundCheckController.updateBackgroundCheck
 
 router.delete('/delete-background-checks', backgroundCheckController.deleteAllBackgroundChecks);
 
+
+
 module.exports = router;

@@ -22,5 +22,7 @@ router.get('/:id/getDocuments', documentController.getDocuments);
 // Route to validate a document
 router.put('/:id/validate', documentController.validateDocument);
 
+router.get('/candidate/:candidateId',documentController.getcandidatedocument)
+
 module.exports = router;
 

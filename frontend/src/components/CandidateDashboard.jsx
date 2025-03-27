@@ -1,13 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import DocumentStatusChecker from "./DocumentStatusChecker";
 
 const CandidateDashboard = () => {
   const { id } = useParams();
-  const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  
-  
+  const [files, setFiles] = useState([]); // Store selected files
+  const [loading, setLoading] = useState(false); // Loading state
+  const [message, setMessage] = useState(""); // Message state for feedback
+  const [Error, setError] = useState(""); // Error state
+  const [Documents, setDocuments] = useState(""); // Store documents
+  const [currentDocId, setCurrentDocId] = useState([]); // Store document IDs
+
+  // Fetch candidate documents on mount
+  const fetchCandidateDocuments = async () => {
+    if (!id) {
+      setError('No candidate ID provided');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/documents/candidate/${id}`);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('No documents found for this candidate');
+        }
+        throw new Error('Failed to fetch documents');
+      }
+
+      const data = await response.json();
+      setCurrentDocId(data);
+      setDocuments(data); // Set the fetched documents data
+    } catch (err) {
+      setError(err.message);
+      setDocuments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Run fetchCandidateDocuments on component mount or when ID changes
+  useEffect(() => {
+    fetchCandidateDocuments();
+  }, [id]);
+
   // Handle file selection
   const handleFileChange = (e) => {
     setFiles(Array.from(e.target.files));
@@ -18,7 +57,7 @@ const CandidateDashboard = () => {
     setFiles(files.filter((_, i) => i !== index));
   };
 
-  // Submit files to the backend
+  // Submit files to the backend and refresh page on success
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (files.length === 0) {
@@ -30,7 +69,7 @@ const CandidateDashboard = () => {
     setMessage("");
 
     const formData = new FormData();
-    formData.append("candidateId", id);  // Replace with dynamic candidate ID
+    formData.append("candidateId", id); // Replace with dynamic candidate ID
 
     files.forEach((file) => {
       formData.append("documents", file);
@@ -46,6 +85,8 @@ const CandidateDashboard = () => {
       if (response.ok) {
         setMessage("✅ Documents submitted successfully!");
         setFiles([]); // Clear selected files after success
+        // Refresh the page after successful submission
+        window.location.reload();
       } else {
         setMessage(`❌ ${result.error || "Failed to submit documents."}`);
       }
@@ -110,6 +151,7 @@ const CandidateDashboard = () => {
 
         {message && <p className="text-center text-gray-300 mt-4">{message}</p>}
       </div>
+      <DocumentStatusChecker documentIds={currentDocId} />
     </div>
   );
 };
