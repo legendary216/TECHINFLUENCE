@@ -1,6 +1,6 @@
 
 const Document = require('../models/documents.js');
-
+const mongoose = require('mongoose')
 
 exports.getcandidatedocument = async (req, res) => {
   try {
@@ -42,7 +42,7 @@ exports.getDocuments = async( req, res ) => {
 }
 
 // Controller to submit a document SIngle pdf
-// exports.submitDocument = async (req, res) => {
+// exports.submitDocument = async (req, res) => { 
 //   try {
 //     const { candidateId } = req.body;
     
@@ -209,6 +209,14 @@ const validateDocumentType = (text) => {
 // Controller to validate a document
 exports.validateDocument = async (req, res) => {
   try {
+ 
+    const { id } = req.params;
+
+    // Validate if the id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid document ID format' });
+    }
+
     const document = await Document.findById(req.params.id);
 
     if (!document) {
@@ -234,7 +242,7 @@ exports.validateDocument = async (req, res) => {
        document.validationDetails = { success: false, reason: 'Invalid document type' };
      } else {
        document.status = 'validated';
-       document.validationDetails = { success: true, type: detectedType };
+       //document.validationDetails = { success: true, type: detectedType };
      }
 
     

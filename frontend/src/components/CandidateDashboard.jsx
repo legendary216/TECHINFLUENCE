@@ -14,7 +14,7 @@ const CandidateDashboard = () => {
   // Fetch candidate documents on mount
   const fetchCandidateDocuments = async () => {
     if (!id) {
-      setError('No candidate ID provided');
+      setError("No candidate ID provided");
       return;
     }
 
@@ -26,9 +26,9 @@ const CandidateDashboard = () => {
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('No documents found for this candidate');
+          throw new Error("No documents found for this candidate");
         }
-        throw new Error('Failed to fetch documents');
+        throw new Error("Failed to fetch documents");
       }
 
       const data = await response.json();
@@ -57,9 +57,9 @@ const CandidateDashboard = () => {
     setFiles(files.filter((_, i) => i !== index));
   };
 
-  // Submit files to the backend and refresh page on success
+  // Submit files to the backend and validate after submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
+   e.preventDefault();
     if (files.length === 0) {
       setMessage("❌ Please select at least one document.");
       return;
@@ -82,11 +82,24 @@ const CandidateDashboard = () => {
       });
 
       const result = await response.json();
+     // console.log(result);
+      
+      const documentIds = result.documents.map(doc => doc._id); // Create an array of document IDs
+      //console.log(documentIds);
+        
+      // Pass the array of document IDs to the validation function
+      
+      console.log("result document : ",result);
+      
       if (response.ok) {
         setMessage("✅ Documents submitted successfully!");
         setFiles([]); // Clear selected files after success
-        // Refresh the page after successful submission
-        window.location.reload();
+        
+        // After successful submission, validate the documents
+        await validateDocuments(documentIds);
+        setTimeout(() => {
+          window.location.reload(); // This will reload the page
+        }, 500);
       } else {
         setMessage(`❌ ${result.error || "Failed to submit documents."}`);
       }
@@ -95,6 +108,29 @@ const CandidateDashboard = () => {
     }
 
     setLoading(false);
+  };
+
+  // Validate documents by calling the validation API for each document ID
+  const validateDocuments = async (documentIds) => {
+    try {
+      for (const documentId of documentIds) {
+        const response = await fetch(`http://localhost:5000/api/documents/${documentId}/validate`, {
+          method: "PUT",
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          console.log(`Document ${documentId} validated successfully.`);
+        } else {
+          console.log(`Failed to validate document ${documentId}: ${result.error}`);
+        }
+      }
+
+      // Optionally, re-fetch the documents after validation to update their status
+      fetchCandidateDocuments();
+    } catch (error) {
+      console.error("Error validating documents:", error);
+    }
   };
 
   return (
