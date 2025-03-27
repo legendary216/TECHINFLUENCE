@@ -4,7 +4,7 @@ const router = express.Router();
 ;
 
 const documentController = require('../controllers/documentsControllers.js');
-const upload = require('../middleware/multerMiddleware');
+const {upload} = require('../middleware/multerMiddleware');
 
 // Route to submit a document for verification
 router.post('/submit',  upload.single('pdfFile'),documentController.submitDocument);

@@ -20,11 +20,35 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize Multer
+const pngStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/profiles/"); // Store PNGs in 'uploads/profiles/'
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+  },
+});
+
+
+const fileFilterPNG = (req, file, cb) => {
+  if (file.mimetype === "image/png") {
+    cb(null, true);
+  } else {
+    cb(new Error("Only PNG files are allowed!"), false);
+  }
+};
+
+const uploadPNG = multer({ 
+  storage: pngStorage,
+   fileFilter: fileFilterPNG ,
+   
+  }).single('profileImage');
+
+// Initialize Multer 
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB size limit
 });
 
-module.exports = upload;
+module.exports =  { upload, uploadPNG };

@@ -1,6 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Router } from "react-router-dom";
 import Register from "./Register";
+
 
 
 const Login = () => {
@@ -30,14 +32,14 @@ const Login = () => {
           <p className="text-gray-400 mt-3 text-sm">OR</p>
           <p className="text-gray-400 mt-3 text-sm">
             If not registered, click
-            <a
-              href="<Register/>"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/register"
               className="text-blue-400 hover:underline ml-1"
             >
               here to register
-            </a>
+            </Link>
+              
+            
           </p>
         </div>
       </div>

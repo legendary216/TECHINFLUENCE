@@ -2,18 +2,19 @@
 const express = require('express');
 const { register, login, logout } = require('../controllers/authControllers');
 const router = express.Router();
+const {uploadPNG} = require('../middleware/multerMiddleware')
 
-router.post('/register', register);
+router.post("/register", uploadPNG, register);
 router.post('/login', login);
 router.post('/logout', logout);
 
-module.exports = router;
+module.exports = router; 
 
 
 
 
 
-
+ 
 
 
 
@@ -47,7 +48,7 @@ module.exports = router;
 //   } catch (error) {
 //     console.error("Error in /register:", error); // More detailed error logging
 //     res.status(500).json({ error: error.message || 'Server error' });
-//   }
+//   } 
 // });
 
 // // Login Route
