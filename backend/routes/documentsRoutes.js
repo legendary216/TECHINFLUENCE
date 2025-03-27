@@ -9,6 +9,7 @@ router.post('/submit', documentController.submitDocument);
 // Route to get a document's validation status
 router.get('/:id/status', documentController.getDocumentStatus);
 
+router.get('/:id/getDocuments', documentController.getDocuments);
 ///:id is a route parameter, meaning it will accept dynamic values.
 //status is a static part of the URL.
 

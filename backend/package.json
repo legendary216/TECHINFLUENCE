@@ -6,15 +6,19 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.0",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "pdf-parse": "^1.1.1",
+    "pdf-poppler": "^0.2.1",
+    "pdf2image": "^1.2.3",
+    "pdf2pic": "^3.1.4",
+    "tesseract.js": "^6.0.0"
   },
   "name": "backend",
   "version": "1.0.0",
   "main": "server.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-     "start": "nodemon server.js"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
