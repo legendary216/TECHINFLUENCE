@@ -19,18 +19,18 @@ function App() {
 function HomePage() {
   return (
     <div className="flex min-h-screen">
-      {/* Left Side - Login */}
-      <div className="w-1/2 flex items-center justify-center bg-gray-900 p-10">
+      {/* Left Side - Login (Smaller width) */}
+      <div className="w-1/3 flex items-center justify-center bg-gray-900 p-10">
         <div className="w-full max-w-md">
           <Login />
         </div>
       </div>
 
-      {/* Divider */}
+      {/* Left Divider (Just next to Login) */}
       <div className="w-1 bg-gray-700"></div>
 
-      {/* Right Side - Homepage Content */}
-      <div className="w-1/2 flex flex-col justify-center items-center p-10 bg-gray-800 text-white">
+      {/* Right Side - Homepage Content (Bigger width) */}
+      <div className="w-2/3 flex flex-col justify-center items-center p-10 bg-gray-800 text-white">
         <h1 className="text-4xl font-extrabold text-center">
           Welcome to AI-powered
         </h1>
