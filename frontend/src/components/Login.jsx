@@ -29,10 +29,18 @@ const Login = () => {
       localStorage.setItem("token", result.token);
       localStorage.setItem("user", JSON.stringify(result.user));
 
-      // Navigate to user's specific dashboard
+      // Navigate to the appropriate dashboard based on role
       const { id, role } = result.user; // Get user ID and role
-      navigate(`/${role}_dashboard/${id}`); // e.g., /candidate_dashboard/12345
-      
+
+      if (role === "candidate") {
+        navigate(`/candidate_dashboard/${id}`); // Redirect to candidate dashboard
+      } else if (role === "employer") {
+        navigate(`/employer_dashboard/${id}`); // Redirect to employer dashboard
+      } else {
+        // Handle any other roles if necessary, or show an error
+        console.error("Unknown role");
+      }
+
     } catch (error) {
       setError(error.message);
     }
